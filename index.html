@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Material Theme — Chrome Extension</title>
+    <meta name="description"
+        content="A beautiful Material Theme extension for your code editor. Customize your coding experience with Light, Dark, and Default themes.">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <style>
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #06050f;
+            --surface: #0f0e1a;
+            --surface-2: #161528;
+            --primary: #6c5ce7;
+            --primary-glow: rgba(108, 92, 231, 0.4);
+            --accent: #a29bfe;
+            --success: #00cec9;
+            --text: #fffffe;
+            --text-muted: #8892a4;
+            --radius: 16px;
+            --font: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--font);
+            background: var(--bg);
+            color: var(--text);
+            overflow-x: hidden;
+            line-height: 1.6;
+        }
+
+        /* ── Animated Background ── */
+        .bg-grid {
+            position: fixed;
+            inset: 0;
+            z-index: 0;
+            pointer-events: none;
+            background-image:
+                linear-gradient(rgba(108, 92, 231, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(108, 92, 231, 0.03) 1px, transparent 1px);
+            background-size: 60px 60px;
+        }
+
+        .bg-glow {
+            position: fixed;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 800px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(108, 92, 231, 0.12), transparent 70%);
+            z-index: 0;
+            pointer-events: none;
+            animation: pulse-glow 6s ease-in-out infinite;
+        }
+
+        @keyframes pulse-glow {
+
+            0%,
+            100% {
+                opacity: 0.6;
+                transform: translateX(-50%) scale(1);
+            }
+
+            50% {
+                opacity: 1;
+                transform: translateX(-50%) scale(1.1);
+            }
+        }
+
+        /* ── Nav ── */
+        nav {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+            padding: 16px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: rgba(6, 5, 15, 0.75);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(108, 92, 231, 0.08);
+        }
+
+        .nav-brand {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-size: 18px;
+            font-weight: 800;
+            text-decoration: none;
+            color: var(--text);
+        }
+
+        .nav-brand span {
+            font-size: 24px;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 32px;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+
+        .nav-links a:hover {
+            color: var(--text);
+        }
+
+        .nav-cta {
+            padding: 9px 22px;
+            border-radius: 50px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 18px var(--primary-glow);
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 28px var(--primary-glow);
+        }
+
+        /* ── Hero ── */
+        .hero {
+            position: relative;
+            z-index: 1;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 120px 24px 80px;
+        }
+
+        .hero-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 6px 18px;
+            border-radius: 50px;
+            background: rgba(108, 92, 231, 0.1);
+            border: 1px solid rgba(108, 92, 231, 0.2);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--accent);
+            margin-bottom: 28px;
+            letter-spacing: 0.5px;
+        }
+
+        .hero-badge .dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--success);
+            animation: blink 2s ease-in-out infinite;
+        }
+
+        @keyframes blink {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.3;
+            }
+        }
+
+        .hero h1 {
+            font-size: clamp(40px, 6vw, 72px);
+            font-weight: 900;
+            line-height: 1.05;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+            max-width: 700px;
+        }
+
+        .hero h1 .gradient {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe, #00cec9);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .hero p {
+            font-size: 18px;
+            color: var(--text-muted);
+            max-width: 520px;
+            margin-bottom: 40px;
+            line-height: 1.7;
+        }
+
+        .hero-actions {
+            display: flex;
+            gap: 16px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .btn-install {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 36px;
+            border-radius: 14px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+            font-family: var(--font);
+            font-size: 16px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 6px 30px var(--primary-glow);
+            text-decoration: none;
+        }
+
+        .btn-install:hover {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 12px 40px var(--primary-glow);
+        }
+
+        .btn-install:active {
+            transform: translateY(0) scale(0.98);
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 36px;
+            border-radius: 14px;
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.03);
+            color: var(--text);
+            font-family: var(--font);
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+        }
+
+        .btn-secondary:hover {
+            background: rgba(255, 255, 255, 0.06);
+            border-color: rgba(108, 92, 231, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .hero-image {
+            margin-top: 60px;
+            max-width: 480px;
+            width: 100%;
+            border-radius: 20px;
+            border: 1px solid rgba(108, 92, 231, 0.15);
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.5), 0 0 60px rgba(108, 92, 231, 0.1);
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-12px);
+            }
+        }
+
+        /* ── Features ── */
+        .features {
+            position: relative;
+            z-index: 1;
+            padding: 100px 40px;
+            max-width: 1100px;
+            margin: 0 auto;
+        }
+
+        .features h2 {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 60px;
+        }
+
+        .features h2 .gradient {
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+        }
+
+        .feature-card {
+            padding: 32px;
+            border-radius: var(--radius);
+            background: var(--surface);
+            border: 1px solid rgba(108, 92, 231, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .feature-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(108, 92, 231, 0.2);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .feature-icon {
+            font-size: 36px;
+            margin-bottom: 16px;
+            filter: drop-shadow(0 0 10px var(--primary-glow));
+        }
+
+        .feature-card h3 {
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.7;
+        }
+
+        /* ── Install Steps ── */
+        .install {
+            position: relative;
+            z-index: 1;
+            padding: 100px 40px;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .install h2 {
+            text-align: center;
+            font-size: 36px;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 16px;
+        }
+
+        .install>p {
+            text-align: center;
+            color: var(--text-muted);
+            font-size: 16px;
+            margin-bottom: 50px;
+        }
+
+        .steps {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .step {
+            display: flex;
+            align-items: flex-start;
+            gap: 20px;
+            padding: 24px 28px;
+            border-radius: var(--radius);
+            background: var(--surface);
+            border: 1px solid rgba(108, 92, 231, 0.08);
+            transition: all 0.3s ease;
+        }
+
+        .step:hover {
+            border-color: rgba(108, 92, 231, 0.2);
+        }
+
+        .step-num {
+            flex-shrink: 0;
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            font-weight: 800;
+        }
+
+        .step-content h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .step-content p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        .step-content code {
+            padding: 2px 8px;
+            border-radius: 6px;
+            background: rgba(108, 92, 231, 0.12);
+            color: var(--accent);
+            font-size: 13px;
+            font-family: 'Consolas', monospace;
+        }
+
+        /* ── Footer ── */
+        footer {
+            position: relative;
+            z-index: 1;
+            padding: 40px;
+            text-align: center;
+            border-top: 1px solid rgba(108, 92, 231, 0.06);
+            color: var(--text-muted);
+            font-size: 13px;
+        }
+
+        /* ── Modal ── */
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 200;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(6px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.show {
+            display: flex;
+        }
+
+        .modal {
+            background: var(--surface-2);
+            border: 1px solid rgba(108, 92, 231, 0.2);
+            border-radius: 20px;
+            padding: 40px;
+            max-width: 460px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+            animation: modal-in 0.3s ease;
+        }
+
+        @keyframes modal-in {
+            from {
+                opacity: 0;
+                transform: scale(0.95) translateY(10px);
+            }
+        }
+
+        .modal-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .modal h3 {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .modal p {
+            font-size: 14px;
+            color: var(--text-muted);
+            margin-bottom: 28px;
+            line-height: 1.7;
+        }
+
+        .modal-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 14px 32px;
+            border-radius: 12px;
+            border: none;
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: #fff;
+            font-family: var(--font);
+            font-size: 15px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            box-shadow: 0 4px 20px var(--primary-glow);
+        }
+
+        .modal-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 30px var(--primary-glow);
+        }
+
+        .modal-close {
+            display: block;
+            margin-top: 16px;
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 13px;
+            cursor: pointer;
+            font-family: var(--font);
+        }
+
+        .modal-close:hover {
+            color: var(--text);
+        }
+
+        /* ── Progress bar ── */
+        .download-progress {
+            width: 100%;
+            height: 4px;
+            border-radius: 4px;
+            background: rgba(108, 92, 231, 0.15);
+            margin-top: 20px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .download-progress.active {
+            display: block;
+        }
+
+        .download-progress .bar {
+            height: 100%;
+            width: 0;
+            border-radius: 4px;
+            background: linear-gradient(90deg, var(--primary), var(--success));
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 768px) {
+            nav {
+                padding: 14px 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hero {
+                padding: 100px 20px 60px;
+            }
+
+            .features,
+            .install {
+                padding: 60px 20px;
+            }
+
+            .hero-image {
+                max-width: 340px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="bg-grid"></div>
+    <div class="bg-glow"></div>
+
+    <!-- Nav -->
+    <nav>
+        <a href="#" class="nav-brand"><span>🎨</span> Material Theme</a>
+        <div class="nav-links">
+            <a href="#features">Features</a>
+            <a href="#install">Install Guide</a>
+        </div>
+        <a href="#" class="nav-cta" id="nav-install-btn">⬇ Install</a>
+    </nav>
+
+    <!-- Hero -->
+    <section class="hero">
+        <div class="hero-badge"><span class="dot"></span> Free & Open Source</div>
+        <h1>Code in <span class="gradient">Style.</span></h1>
+        <p>A premium Material Theme for your code editor. Beautifully crafted dark and light themes with fine-tuned
+            syntax highlighting.</p>
+        <div class="hero-actions">
+            <button class="btn-install" id="install-btn">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                    <polyline points="7 10 12 15 17 10" />
+                    <line x1="12" y1="15" x2="12" y2="3" />
+                </svg>
+                Install Extension
+            </button>
+            <a href="#install" class="btn-secondary">📖 How to Install</a>
+        </div>
+        <img src="hero.png" alt="Material Theme Preview" class="hero-image">
+    </section>
+
+    <!-- Features -->
+    <section class="features" id="features">
+        <h2>Why <span class="gradient">Material Theme</span>?</h2>
+        <div class="features-grid">
+            <div class="feature-card">
+                <div class="feature-icon">🌗</div>
+                <h3>Multiple Themes</h3>
+                <p>Switch between Light, Dark, and Default themes instantly. Each theme is carefully crafted for optimal
+                    readability.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">⚡</div>
+                <h3>Zero Performance Impact</h3>
+                <p>Lightweight extension with no background processes. Your browser stays fast and responsive.</p>
+            </div>
+            <div class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h3>Syntax Highlighting</h3>
+                <p>Fine-tuned color scheme for 20+ programming languages. Every token is designed for clarity.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Install Steps -->
+    <section class="install" id="install">
+        <h2>Installation</h2>
+        <p>Get up and running in seconds — fully automated.</p>
+        <div class="steps">
+            <div class="step">
+                <div class="step-num">1</div>
+                <div class="step-content">
+                    <h3>Download</h3>
+                    <p>Click the <strong>Install Extension</strong> button above. A <code>.zip</code> file will be
+                        downloaded automatically.</p>
+                </div>
+            </div>
+            <div class="step">
+                <div class="step-num">2</div>
+                <div class="step-content">
+                    <h3>Extract & Run Installer</h3>
+                    <p>Unzip the file and double-click <code>install.bat</code> inside. The installer will automatically
+                        set up the extension and launch Chrome with it. <strong>That's it!</strong> 🎉</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <p>Material Theme © 2026 — Built with care for developers.</p>
+    </footer>
+
+    <!-- Download Modal -->
+    <div class="modal-overlay" id="modal">
+        <div class="modal">
+            <div class="modal-icon">🎨</div>
+            <h3>Installing Material Theme</h3>
+            <p>Your download is starting automatically. Once downloaded, <strong>extract the zip</strong> and
+                <strong>double-click <code
+                        style="background:rgba(108,92,231,0.2);padding:2px 6px;border-radius:4px;color:#a29bfe">install.bat</code></strong>
+                — it does everything for you!</p>
+            <div class="download-progress" id="progress">
+                <div class="bar" id="progress-bar"></div>
+            </div>
+            <a href="material-theme-extension.zip" download class="modal-btn" id="modal-download"
+                style="display:none;">⬇ Download Again</a>
+            <button class="modal-close" id="modal-close">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const installBtn = document.getElementById('install-btn');
+        const navInstallBtn = document.getElementById('nav-install-btn');
+        const modal = document.getElementById('modal');
+        const modalClose = document.getElementById('modal-close');
+        const progress = document.getElementById('progress');
+        const progressBar = document.getElementById('progress-bar');
+        const modalDownload = document.getElementById('modal-download');
+
+        function triggerInstall(e) {
+            e.preventDefault();
+            modal.classList.add('show');
+            progress.classList.add('active');
+
+            // Animate progress bar
+            setTimeout(() => { progressBar.style.width = '70%'; }, 100);
+            setTimeout(() => { progressBar.style.width = '100%'; }, 1200);
+
+            // Trigger download
+            setTimeout(() => {
+                const link = document.createElement('a');
+                link.href = 'material-theme-extension.zip';
+                link.download = 'material-theme-extension.zip';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+
+                // Show manual download button
+                setTimeout(() => { modalDownload.style.display = 'inline-flex'; }, 500);
+            }, 800);
+        }
+
+        installBtn.addEventListener('click', triggerInstall);
+        navInstallBtn.addEventListener('click', triggerInstall);
+
+        modalClose.addEventListener('click', () => {
+            modal.classList.remove('show');
+            progress.classList.remove('active');
+            progressBar.style.width = '0';
+            modalDownload.style.display = 'none';
+        });
+
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) modalClose.click();
+        });
+    </script>
+</body>
+
+</html>
